@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="sv">
+{{template "head.gohtml" .}}
+<body>
+    <div id="methone-container-replace"></div>
+
+    <main class="main-content">
+        <header class="page-title">
+            <h1>Välkommen till OG-template</h1>
+            <p>En startmall för Datasektionens webbsystem med Go, Methone och SSO</p>
+        </header>
+
+        <section class="card">
+            <h2>Inloggningsstatus</h2>
+            {{if .loggedIn}}
+                <p>Du är inloggad som <strong>{{or .auth.Name .auth.Username}}</strong> <span class="badge badge-success">Inloggad</span></p>
+                
+                <h3>Dina accesser:</h3>
+                {{if .auth.Permissions}}
+                    <div>
+                        {{range .auth.Permissions}}
+                            <span class="badge badge-primary">{{.}}</span>
+                        {{end}}
+                    </div>
+                {{else}}
+                    <p><em>Inga specifika accesser funna i ID-token för din användare.</em></p>
+                {{end}}
+
+                <div class="btn-group">
+                    <a href="/logout" class="btn btn-secondary">Logga ut</a>
+                    {{if .auth.HasPermission "admin"}}
+                        <a href="/admin" class="btn">Gå till Adminpanel</a>
+                    {{end}}
+                </div>
+            {{else}}
+                <p>Du är inte inloggad. <span class="badge badge-warning">Ej inloggad</span></p>
+                <p>Logga in via Datasektionens SSO för att se dina accesser och skyddade sidor.</p>
+                <div class="btn-group">
+                    <a href="/login" class="btn">Logga in med SSO</a>
+                </div>
+            {{end}}
+        </section>
+
+        <div class="info-grid">
+            <section class="card">
+                <h2>Testanvändare i lokal utveckling</h2>
+                <p>När du kör lokalt med <code>docker compose</code> kan du logga in som följande användare:</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>KTH-ID</th>
+                            <th>Namn</th>
+                            <th>Accesser</th>
+                            <th>Roll</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><code>turetek</code></td>
+                            <td>Ture Teknolog</td>
+                            <td><span class="badge badge-primary">admin</span></td>
+                            <td>Admin (har access till <code>/admin</code>)</td>
+                        </tr>
+                        <tr>
+                            <td><code>diadat</code></td>
+                            <td>Diana Datalog</td>
+                            <td><span class="badge badge-info">view-all</span></td>
+                            <td>Läsaccess</td>
+                        </tr>
+                        <tr>
+                            <td><code>marmed</code></td>
+                            <td>Martin Median</td>
+                            <td><em>inga</em></td>
+                            <td>Vanlig användare</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <section class="card">
+                <h2>Det här ingår i startmallen</h2>
+                <ul>
+                    <li><strong>Backend:</strong> Go med <code>net/http</code> och <code>html/template</code></li>
+                    <li><strong>SSO / Auth:</strong> OIDC via Datasektionens inloggning</li>
+                    <li><strong>Accesser:</strong> Hämtas direkt ur ID-token från SSO via <code>permissions</code>-scope</li>
+                    <li><strong>UI / Design:</strong> Methone-topbar & Aurora CSS</li>
+                    <li><strong>Databas:</strong> PostgreSQL med automatisk inläsning av <code>schema.sql</code></li>
+                </ul>
+            </section>
+        </div>
+
+        <section class="card">
+            <h2>Så anpassar du mallen för ditt nya system</h2>
+            <p>Starta hela utvecklingsmiljön med Docker Compose:</p>
+            <pre><code>docker compose watch</code></pre>
+            <p>Öppna sedan <a href="http://localhost:3000">http://localhost:3000</a>. Om du inte behöver live reload kan du i stället köra:</p>
+            <pre><code>docker compose up --build</code></pre>
+
+            <p>Följ därefter denna checklista för att konfigurera mallen för ett nytt Datasektionen-system:</p>
+
+            <ol class="step-list">
+                <li>
+                    <strong>Be D-Sys skapa ett repo:</strong>
+                    <br>
+                    Kontakta D-Sys för att få ett nytt repository skapat under <code>github.com/datasektionen/&lt;ditt-system&gt;</code> och kopiera in filerna från denna mall.
+                </li>
+                <li>
+                    <strong>Go-modul och importer:</strong>
+                    <br>
+                    Ändra modulnamnet i <code>go.mod</code>:
+                    <pre><code>go mod edit -module github.com/datasektionen/&lt;ditt-system&gt;</code></pre>
+                    Uppdatera alla Go imports i <code>main.go</code>, <code>internal/web/web.go</code> etc. från <code>github.com/datasektionen/OG-template/...</code> till <code>github.com/datasektionen/&lt;ditt-system&gt;/...</code> och kör:
+                    <pre><code>go mod tidy</code></pre>
+                </li>
+                <li>
+                    <strong>UI, Methone &amp; Aurora (Design):</strong>
+                    <br>
+                    I <code>internal/web/templates/head.gohtml</code>:
+                    <ul>
+                        <li>Ändra <code>system_name: "Ditt System"</code></li>
+                        <li>Välj en färg i <code>color_scheme</code> (t.ex. <code>"cerise"</code>, <code>"blue_grey"</code>, <code>"dark_blue"</code>)</li>
+                        <li>Anpassa länkarna i <code>links</code>-arrayen</li>
+                        <li>Ändra sidans <code>&lt;title&gt;</code></li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Routes &amp; Accesser:</strong>
+                    <br>
+                    I <code>internal/web/web.go</code> registrerar du dina sidor och anger vilka accesser som krävs:
+                    <pre><code>mux.Handle("/admin", s.authRoute(s.adminPage, "admin"))</code></pre>
+                </li>
+                <li>
+                    <strong>Databas &amp; schema.sql (valfritt):</strong>
+                    <br>
+                    <ul>
+                        <li><strong>Med databas:</strong> Skriv dina tabeller i <code>schema.sql</code>. De körs automatiskt vid uppstart om <code>DB_CONN</code> är satt.</li>
+                        <li><strong>Utan databas:</strong> Ta bort <code>schema.sql</code>, mappen <code>internal/database/</code>, <code>db</code>-containern i <code>compose.yaml</code> och referensen i <code>main.go</code>, samt kör <code>go mod tidy</code>.</li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Lokal utveckling (<code>compose.yaml</code>):</strong>
+                    <br>
+                    Byt databasnamn vid behov och lägg till egna accesser under <code>nyckeln.yaml &rarr; hive.groups</code> för att testa dina accesser lokalt med Nyckeln.
+                </li>
+                <li>
+                    <strong>Produktion &amp; Nomad (<code>job.nomad.hcl</code>):</strong>
+                    <br>
+                    Byt ut alla förekomster av <code>OG-template</code> mot ditt systemnamn:
+                    <ul>
+                        <li><code>job "&lt;ditt-system&gt;"</code> &amp; <code>group "&lt;ditt-system&gt;"</code></li>
+                        <li><code>service { name = "&lt;ditt-system&gt;" ... }</code></li>
+                        <li><code>traefik.http.routers.&lt;ditt-system&gt;.rule=Host(`&lt;ditt-system&gt;.datasektionen.se`)</code></li>
+                        <li><code>traefik.http.routers.&lt;ditt-system&gt;.tls.certresolver=default</code></li>
+                        <li><code>task "&lt;ditt-system&gt;"</code></li>
+                        <li><code>SERVER_URL=https://&lt;ditt-system&gt;.datasektionen.se</code></li>
+                        <li><code>OIDC_REDIRECT_URL=https://&lt;ditt-system&gt;.datasektionen.se/auth/callback</code></li>
+                        <li><code>OIDC_CLIENT_ID=&lt;ditt-system&gt;</code></li>
+                        <li><code>nomadVar "nomad/jobs/&lt;ditt-system&gt;"</code></li>
+                        <li><code>DB_CONN=postgres://&lt;ditt-system&gt;:{{ .db_password }}@postgres.dsekt.internal:5432/&lt;ditt-system&gt;</code> <em>(eller ta bort raden utan DB)</em></li>
+                        <li><code>image_tag = "ghcr.io/datasektionen/&lt;ditt-system&gt;:latest"</code></li>
+                    </ul>
+                </li>
+                <li>
+                    <strong>Kontakta D-Sys för driftsättning:</strong>
+                    <br>
+                    Be D-Sys om:
+                    <ul>
+                        <li>OIDC-klient med redirect-URL: <code>https://&lt;ditt-system&gt;.datasektionen.se/auth/callback</code></li>
+                        <li>Uppsättning av GitHub Actions &amp; hemligheter i Nomad Vault</li>
+                    </ul>
+                </li>
+            </ol>
+        </section>
+    </main>
+
+    {{template "footer.gohtml" .}}
+</body>
+</html>

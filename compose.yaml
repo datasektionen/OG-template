@@ -1,0 +1,113 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    init: true
+    ports:
+      - "3000:3000"
+    environment:
+      - DB_CONN=postgres://postgres:postgres@db:5432/og_template?sslmode=disable
+      - SERVER_PORT=3000
+      - SERVER_URL=http://localhost:3000
+      - OIDC_PROVIDER=http://localhost:7003
+      - OIDC_CLIENT_ID=client-id
+      - OIDC_CLIENT_SECRET=client-secret
+      - OIDC_REDIRECT_URL=http://localhost:3000/auth/callback
+      - APP_SECRET_KEY=development-secret-key-change-me-in-production
+    depends_on:
+      db:
+        condition: service_healthy
+      nyckeln:
+        condition: service_started
+    configs:
+      - source: nginx.conf
+        target: /etc/nginx/nginx.conf
+    develop:
+      watch:
+        - path: .
+          action: sync+restart
+          target: /src/
+        - path: go.sum
+          action: rebuild
+    command: ./run.sh
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      - POSTGRES_DB=og_template
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -d og_template -U postgres"]
+      interval: 2s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+
+  nyckeln:
+    image: ghcr.io/datasektionen/nyckeln-under-dorrmattan
+    configs:
+      - source: nyckeln.yaml
+        target: /config.yaml
+    ports:
+      - "7003:7003"
+
+configs:
+  nginx.conf:
+    content: |
+      events {}
+      http {
+        server {
+          listen 7003;
+          location / {
+            proxy_pass http://nyckeln:7003;
+          }
+        }
+      }
+  nyckeln.yaml:
+    content: |
+      clients:
+        - id: "client-id"
+          secret: "client-secret"
+          redirect_uris:
+            - http://localhost:3000/auth/callback
+
+      users:
+        - ug_kth_id: kth-id-1
+          kth_id: turetek
+          email: turetek@kth.se
+          first_name: Ture
+          family_name: Teknolog
+          year_tag: D-83
+        - ug_kth_id: kth-id-2
+          kth_id: diadat
+          email: diadat@kth.se
+          first_name: Diana
+          family_name: Datalog
+          year_tag: D-83
+        - ug_kth_id: kth-id-3
+          kth_id: marmed
+          email: marmed@kth.se
+          first_name: Martin
+          family_name: Median
+          year_tag: Me-02
+
+      hive:
+        groups:
+          - name: Administratör
+            id: admin-group
+            domain: example.com
+            members:
+              - turetek
+            permissions:
+              - id: admin
+          - name: Systemansvarig
+            id: d-sys
+            domain: example.com
+            members:
+              - diadat
+            permissions:
+              - id: view-all

@@ -1,0 +1,28 @@
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{if .title}}{{.title}} - {{end}}OG-template</title>
+
+    <link rel="stylesheet" href="/static/main.css">
+    <link rel="stylesheet" href="https://aurora.datasektionen.se" type="text/css" />
+
+    <script>
+        window.methone_conf = {
+            system_name: "OG-template",
+            color_scheme: "cerise",
+            login_text: {{if .loggedIn}}"Logga ut"{{else}}"Logga in"{{end}},
+            login_href: {{if .loggedIn}}"/logout"{{else}}"/login"{{end}},
+            links: [
+                {
+                    str: "Hem",
+                    href: "/"
+                }{{if .auth.HasPermission "admin"}},
+                {
+                    str: "Admin",
+                    href: "/admin"
+                }{{end}}
+            ]
+        };
+    </script>
+    <script async src="//methone.datasektionen.se/bar.js"></script>
+</head>

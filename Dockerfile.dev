@@ -1,0 +1,22 @@
+ARG GO_VERSION=1.27
+
+FROM golang:${GO_VERSION}-alpine AS code
+
+RUN apk add --no-cache nginx
+
+WORKDIR /src
+
+COPY go.* ./
+COPY . .
+
+RUN --mount=type=cache,target=/go/pkg/mod/ \
+    --mount=type=cache,target=/root/.cache/go-build/ \
+    go mod download -x
+
+RUN echo "nginx &" >> run.sh
+RUN echo "go run ." >> run.sh
+RUN chmod +x run.sh
+
+EXPOSE 3000
+
+CMD [ "./run.sh" ]

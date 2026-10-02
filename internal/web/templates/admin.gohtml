@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="sv">
+{{template "head.gohtml" .}}
+<body>
+    <div id="methone-container-replace"></div>
+
+    <main class="main-content">
+        <header class="page-title">
+            <h1>Adminpanel</h1>
+            <p>Denna sida är skyddad och kräver <code>admin</code>-access</p>
+        </header>
+
+        <section class="card">
+            <h2>Administratörsöversikt</h2>
+            <p>Inloggad användare: <strong>{{or .auth.Name .auth.Username}}</strong></p>
+            <p>Tilldelade accesser:</p>
+            <div>
+                {{range .auth.Permissions}}
+                    <span class="badge badge-primary">{{.}}</span>
+                {{end}}
+            </div>
+        </section>
+
+        <section class="card">
+            <h2>Exempel: Databas-interaktion (CRUD)</h2>
+            <p>Detta visar hur man läser in, skapar och raderar rader ur PostgreSQL med standardbiblioteket <code>database/sql</code>.</p>
+
+            {{if .hasDB}}
+                <h3>Skapa nytt objekt</h3>
+                <form method="POST" action="/admin/items" class="crud-form">
+                    <div class="form-group">
+                        <label for="title">Titel</label>
+                        <input type="text" id="title" name="title" required placeholder="T.ex. Fippeltitel" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="description">Beskrivning</label>
+                        <textarea id="description" name="description" placeholder="Fipplig beskrivning..." rows="3" class="form-control"></textarea>
+                    </div>
+                    <button type="submit" class="btn">Spara till databas</button>
+                </form>
+
+                <h3>Befintliga objekt i databasen</h3>
+                {{if .items}}
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Titel</th>
+                                <th>Beskrivning</th>
+                                <th>Skapad av</th>
+                                <th>Datum</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {{range .items}}
+                                <tr>
+                                    <td>{{.ID}}</td>
+                                    <td><strong>{{.Title}}</strong></td>
+                                    <td>{{.Description}}</td>
+                                    <td><code>{{.CreatedBy}}</code></td>
+                                    <td>{{.CreatedAt.Format "2006-01-02 15:04"}}</td>
+                                    <td class="table-action-col">
+                                        <form method="POST" action="/admin/items/delete" class="inline-form" onsubmit="return confirm('Vill du radera detta objekt?');">
+                                            <input type="hidden" name="id" value="{{.ID}}">
+                                            <button type="submit" class="btn btn-danger">Radera</button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            {{end}}
+                        </tbody>
+                    </table>
+                {{else}}
+                    <p><em>Inga objekt finns i databasen ännu. Lägg till ett formuläret ovan!</em></p>
+                {{end}}
+            {{else}}
+                <p><em>Databasen är inte ansluten (DB_CONN saknas).</em></p>
+            {{end}}
+
+            <div class="btn-group">
+                <a href="/" class="btn btn-secondary">Tillbaka till Huvudsidan</a>
+            </div>
+                
+        </section>
+    </main>
+
+    {{template "footer.gohtml" .}}
+</body>
+</html>
