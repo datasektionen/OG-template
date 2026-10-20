@@ -218,3 +218,9 @@ Det krävs bara några enkla steg för att komma igång:
 
 4. **Pusha till main:**
    När koden pushas till `main`-branschen i GitHub bygger GitHub Actions automatiskt Docker-imagen och pushar till GitHub Packages (`ghcr.io`). Nomad sköter därefter driftsättningen.
+
+---
+
+## Licens
+
+Licensierad under [GNU Affero General Public License v3.0](LICENSE) (AGPL-3.0). Notera att AGPL kräver att källkoden görs tillgänglig för användare som interagerar med systemet över nätverk.
