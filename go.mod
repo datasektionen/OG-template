@@ -3,7 +3,7 @@ module github.com/datasektionen/OG-template
 go 1.27
 
 require (
-	github.com/datasektionen/GO-auth-yourself v0.2.0
+	github.com/datasektionen/GO-auth-yourself v0.2.1
 	github.com/lib/pq v1.12.3
 )
 

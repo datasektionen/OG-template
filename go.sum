@@ -1,7 +1,7 @@
 github.com/coreos/go-oidc/v3 v3.21.0 h1:wZo4Q9Pum8dYEj0eMUPrqR+kvuGkeUplbLpNCkBqoWM=
 github.com/coreos/go-oidc/v3 v3.21.0/go.mod h1:DYCf24+ncYi+XkIH97GY1+dqoRlbaSI26KVTCI9SrY4=
-github.com/datasektionen/GO-auth-yourself v0.2.0 h1:9UPiBo0oMvEmRvTN27kPPN8cx1MMpOKPEV5TRaTxXIo=
-github.com/datasektionen/GO-auth-yourself v0.2.0/go.mod h1:Or96ckkrilvSOhrS/3p1evZI4A/SJ17c6wllCNmxNic=
+github.com/datasektionen/GO-auth-yourself v0.2.1 h1:QKx3Mo9YWno/lTY8TmUbCMMTPERE8Pl5TQf63FOimWw=
+github.com/datasektionen/GO-auth-yourself v0.2.1/go.mod h1:Or96ckkrilvSOhrS/3p1evZI4A/SJ17c6wllCNmxNic=
 github.com/go-jose/go-jose/v4 v4.1.5 h1:RjgjO2LOtWOJKUC5wpwY9LR3B3vwVAz6JS2YHfYU6eA=
 github.com/go-jose/go-jose/v4 v4.1.5/go.mod h1:x4oUasVrzR7071A4TnHLGSPpNOm2a21K9Kf04k1rs08=
 github.com/golang-jwt/jwt/v5 v5.3.1 h1:kYf81DTWFe7t+1VvL7eS+jKFVWaUnK9cB1qbwn63YCY=
